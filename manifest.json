@@ -1,0 +1,22 @@
+{
+  "name": "Timeline Expander",
+  "version": "0.1",
+  "description": "Expand links in your favourite social timelines",
+  "background": {"page": "background.html"},
+  "manifest_version": 2,
+  "browser_action": {
+    "name": "Timeline Expander",
+    "icons": ["icon.png"],
+    "default_icon": "icon.png"
+  },
+  "permissions": [
+    "http://*/*", 
+    "https://*/*",
+    "tabs"
+  ],
+  "content_scripts": [ {
+    "js": [ "jquery-2.0.2.min.js", "background.js" ],
+    "css": ["customStyles.css"],
+    "matches": [ "http://*/*", "https://*/*" ]
+  }]
+}
