@@ -1,5 +1,5 @@
 {
-  "name": "Timeline Expander",
+  "name": "1self Stats Injector",
   "version": "0.1",
   "description": "Expand links in your favourite social timelines",
   "background": {"page": "background.html"},

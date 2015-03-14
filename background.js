@@ -107,11 +107,14 @@ function buildHNChartHtml() {
   var chartHtml = '';
   chartHtml += '<td rowspan="92" align="right" valign="top">';
   chartHtml += '<div id="1selfFrame" style="display:block">';
-  chartHtml += buildChartHtml('internet,social-network,twitter,social-graph,inbound,follower', 'ff6600', "70", "500"); 
+  chartHtml += buildChartHtml('internet,social-network,hackernews', 'sample', 'max(points)', 'daily', 'barchart', 'ff6600', "70", "500"); 
   chartHtml += '</div>';
   chartHtml += '</td>';
   return chartHtml;
 }
+
+https://app.1self.co/v1/users/m/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=ebd98ba6a0ae5ccaf8e659bb9fe2cb9a43266aff2eb9e174f0e61f69b0d84b00&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
+// https://app.1self.co/v1/users/m/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=5a724759edd37d97a2989ab9fb2b6d92df78f53cb89c06dae96e5b360226c1dd&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
 
 function buildTwitterChartHtml() {
   var colour = rgbStringToHex($('.DashboardProfileCard-statValue').css('color'));
@@ -120,7 +123,7 @@ function buildTwitterChartHtml() {
   //<span class="DashboardProfileCard-statValue" data-is-compact="false">579</span>
   var chartHtml = '';
   chartHtml += '<div class="module trends"><div class="flex-module">';
-  chartHtml += buildChartHtml('internet,social-network,twitter,social-graph,inbound,follower', colour, "100%", "500");
+  chartHtml += buildChartHtml('internet,social-network,twitter,social-graph,inbound,follower', 'sample', 'max(count)', 'daily', 'barchart', colour, "100%", "500");
   chartHtml += '</div></div>';
   return chartHtml;
 }
@@ -147,7 +150,7 @@ function rgbToHex(r, g, b) {
     return componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
-function buildChartHtml(tagString, bgColor, width, height) {
+function buildChartHtml(objString, actionString, aggregation, period, chartType, bgColor, width, height) {
 
   var chartHtml = '';
   var username;
@@ -156,8 +159,8 @@ function buildChartHtml(tagString, bgColor, width, height) {
 
   chartHtml += '<iframe width="' + width + '%" height="' + height + '" ';
   chartHtml += 'src="https://app.1self.co/v1/users/' + username + '/events/';
-  chartHtml += tagString;
-  chartHtml += '/sample/max(count)/daily/barchart?bgColor=' + bgColor + '" />';
+  chartHtml += objString;
+  chartHtml += '/' + actionString + '/' + aggregation + '/' + period + '/' + chartType + '?bgColor=' + bgColor + '" />';
 
   return chartHtml;
 }
