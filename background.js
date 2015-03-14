@@ -104,26 +104,53 @@ function insertChart() {
 }
 
 function buildHNChartHtml() {
+    var chartJSON = [{
+    "itemTitle": 'Karma',
+    "objString": 'internet,social-network,hackernews',
+    "actionString": 'sample',
+    "aggregation": 'max(points)',
+    "period": 'daily',
+    "chartType": 'barchart',
+    "bgColor": 'ff6600'
+  }];
+
   var chartHtml = '';
   chartHtml += '<td rowspan="92" align="right" valign="top">';
   chartHtml += '<div id="1selfFrame" style="display:block">';
-  chartHtml += buildChartHtml('internet,social-network,hackernews', 'sample', 'max(points)', 'daily', 'barchart', 'ff6600', "70", "500"); 
+  chartHtml += buildChartHtml(chartJSON, "70", "500"); 
   chartHtml += '</div>';
   chartHtml += '</td>';
   return chartHtml;
 }
 
-https://app.1self.co/v1/users/m/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=ebd98ba6a0ae5ccaf8e659bb9fe2cb9a43266aff2eb9e174f0e61f69b0d84b00&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
+// https://app.1self.co/v1/users/m/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=ebd98ba6a0ae5ccaf8e659bb9fe2cb9a43266aff2eb9e174f0e61f69b0d84b00&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
 // https://app.1self.co/v1/users/m/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=5a724759edd37d97a2989ab9fb2b6d92df78f53cb89c06dae96e5b360226c1dd&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
+// https://app.1self.co/v1/users/m/events/internet,social-network,twitter,social-graph,outbound,following/sample/max(count)/daily/barchart?shareToken=d84a38cf398ef7dc3bbbda3548239e7bf3f24e7814412e074ea1c48dde16d2c9&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
 
 function buildTwitterChartHtml() {
   var colour = rgbStringToHex($('.DashboardProfileCard-statValue').css('color'));
-  // rgb(0, 173, 135)
-  
-  //<span class="DashboardProfileCard-statValue" data-is-compact="false">579</span>
+
+  var chartJSON = [{
+    "itemTitle": 'Followers',
+    "objString": 'internet,social-network,twitter,social-graph,inbound,follower',
+    "actionString": 'sample',
+    "aggregation": 'max(count)',
+    "period": 'daily',
+    "chartType": 'barchart',
+    "bgColor": colour
+  },{
+    "itemTitle": 'Following',
+    "objString": 'internet,social-network,twitter,social-graph,outbound,following',
+    "actionString": 'sample',
+    "aggregation": 'max(count)',
+    "period": 'daily',
+    "chartType": 'barchart',
+    "bgColor": colour
+  }];
+
   var chartHtml = '';
   chartHtml += '<div class="module trends"><div class="flex-module">';
-  chartHtml += buildChartHtml('internet,social-network,twitter,social-graph,inbound,follower', 'sample', 'max(count)', 'daily', 'barchart', colour, "100%", "500");
+  chartHtml += buildChartHtml(chartJSON, "100%", "500");
   chartHtml += '</div></div>';
   return chartHtml;
 }
@@ -150,19 +177,44 @@ function rgbToHex(r, g, b) {
     return componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
-function buildChartHtml(objString, actionString, aggregation, period, chartType, bgColor, width, height) {
+function buildChartHtml(chartJSON, width, height) {
 
   var chartHtml = '';
   var username;
 
   username = 'm';
 
-  chartHtml += '<iframe width="' + width + '%" height="' + height + '" ';
-  chartHtml += 'src="https://app.1self.co/v1/users/' + username + '/events/';
-  chartHtml += objString;
-  chartHtml += '/' + actionString + '/' + aggregation + '/' + period + '/' + chartType + '?bgColor=' + bgColor + '" />';
+  if (chartJSON.length > 1) {
+    chartHtml += '<select name="selectionField" style="width:' + width + ';"';
+    chartHtml += 'onchange="document.getElementById(\'1selfIFrame\').src = this.options[this.selectedIndex].value;"';
+    chartHtml += '>';
+
+    for (var i = 0; i < chartJSON.length; i++) {
+      chartHtml += '<option value="' + buildIFrameSrc(username, chartJSON[i]) + '" >';
+      chartHtml += chartJSON[i].itemTitle;
+      chartHtml += '</option>';
+    }
+
+    chartHtml += '</select>';
+    chartHtml += "<br />";
+  }
+
+  chartHtml += '<iframe id="1selfIFrame" width="' + width + '%" height="' + height + '" ';
+  chartHtml += 'src="' + buildIFrameSrc(username, chartJSON[0]) + '"';
+  chartHtml += ' />';
 
   return chartHtml;
+}
+
+function buildIFrameSrc(username, srcJSON) {
+  var iFrameSrc = '';
+
+  iFrameSrc += 'https://app.1self.co/v1/users/' + username + '/events/';
+  iFrameSrc += srcJSON.objString;
+  iFrameSrc += '/' + srcJSON.actionString + '/' + srcJSON.aggregation + '/';
+  iFrameSrc += srcJSON.period + '/' + srcJSON.chartType + '?bgColor=' + srcJSON.bgColor;
+
+  return iFrameSrc;
 }
 
 function insertInstagram(instagramUrl, theTweet, page) {
