@@ -146,7 +146,16 @@ function buildTwitterChartHtml() {
     "period": 'daily',
     "chartType": 'barchart',
     "bgColor": colour
+  },{
+    "itemTitle": 'Tweets published',
+    "objString": 'internet,social-network,twitter,tweet',
+    "actionString": 'publish',
+    "aggregation": 'count',
+    "period": 'daily',
+    "chartType": 'barchart',
+    "bgColor": colour
   }];
+
 
   var chartHtml = '';
   chartHtml += '<div class="module trends"><div class="flex-module">';
