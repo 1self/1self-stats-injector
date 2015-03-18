@@ -112,12 +112,22 @@ function buildHNChartHtml() {
     "period": 'daily',
     "chartType": 'barchart',
     "bgColor": 'ff6600'
+  },{
+    "itemTitle": 'HN Visits',
+    "objString": 'ycombinator',
+    "actionString": 'browse',
+    "aggregation": 'sum(times-visited)',
+    "period": 'daily',
+    "chartType": 'barchart',
+    "bgColor": 'ff6600'
   }];
+
+  // http://app.1self.co/v1/users/m/events/ycombinator/browse/sum(times-visited)/daily/barchart?shareToken=6cabe6dc0f6a175d026b17c2e16610b502fce5c7a7f85d3e4d71a3c4e314afd6&bgColor=1b1b1a&from=2015-03-12T00:00:00.000Z&to=2015-03-18T23:59:59.999Z
 
   var chartHtml = '';
   chartHtml += '<td rowspan="92" align="right" valign="top">';
-  chartHtml += '<div id="1selfFrame" style="display:block">';
-  chartHtml += buildChartHtml(chartJSON, "70", "500"); 
+  chartHtml += '<div id="1selfFrame" style="display:block;width:80%;">';
+  chartHtml += buildChartHtml(chartJSON, "100", "500px"); 
   chartHtml += '</div>';
   chartHtml += '</td>';
   return chartHtml;
@@ -154,12 +164,20 @@ function buildTwitterChartHtml() {
     "period": 'daily',
     "chartType": 'barchart',
     "bgColor": colour
+  },{
+    "itemTitle": 'Twitter Visits',
+    "objString": 'twitter',
+    "actionString": 'browse',
+    "aggregation": 'sum(times-visited)',
+    "period": 'daily',
+    "chartType": 'barchart',
+    "bgColor": colour
   }];
 
 
   var chartHtml = '';
   chartHtml += '<div class="module trends"><div class="flex-module">';
-  chartHtml += buildChartHtml(chartJSON, "100%", "500");
+  chartHtml += buildChartHtml(chartJSON, "100", "500px");
   chartHtml += '</div></div>';
   return chartHtml;
 }
@@ -194,7 +212,7 @@ function buildChartHtml(chartJSON, width, height) {
   username = 'm';
 
   if (chartJSON.length > 1) {
-    chartHtml += '<select name="selectionField" style="width:' + width + ';"';
+    chartHtml += '<select name="selectionField" style="width:' + width + '%;"';
     chartHtml += 'onchange="document.getElementById(\'1selfIFrame\').src = this.options[this.selectedIndex].value;"';
     chartHtml += '>';
 
