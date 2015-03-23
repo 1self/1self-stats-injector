@@ -133,9 +133,9 @@ function buildHNChartHtml() {
   return chartHtml;
 }
 
-// https://app.1self.co/v1/users/m/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=ebd98ba6a0ae5ccaf8e659bb9fe2cb9a43266aff2eb9e174f0e61f69b0d84b00&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
-// https://app.1self.co/v1/users/m/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=5a724759edd37d97a2989ab9fb2b6d92df78f53cb89c06dae96e5b360226c1dd&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
-// https://app.1self.co/v1/users/m/events/internet,social-network,twitter,social-graph,outbound,following/sample/max(count)/daily/barchart?shareToken=d84a38cf398ef7dc3bbbda3548239e7bf3f24e7814412e074ea1c48dde16d2c9&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
+// https://app.1self.co/v1/me/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=ebd98ba6a0ae5ccaf8e659bb9fe2cb9a43266aff2eb9e174f0e61f69b0d84b00&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
+// https://app.1self.co/v1/me/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=5a724759edd37d97a2989ab9fb2b6d92df78f53cb89c06dae96e5b360226c1dd&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
+// https://app.1self.co/v1/me/events/internet,social-network,twitter,social-graph,outbound,following/sample/max(count)/daily/barchart?shareToken=d84a38cf398ef7dc3bbbda3548239e7bf3f24e7814412e074ea1c48dde16d2c9&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
 
 function buildTwitterChartHtml() {
   var colour = rgbStringToHex($('.DashboardProfileCard-statValue').css('color'));
@@ -207,9 +207,6 @@ function rgbToHex(r, g, b) {
 function buildChartHtml(chartJSON, width, height) {
 
   var chartHtml = '';
-  var username;
-
-  username = 'm';
 
   if (chartJSON.length > 1) {
     chartHtml += '<select name="selectionField" style="width:' + width + '%;"';
@@ -217,7 +214,7 @@ function buildChartHtml(chartJSON, width, height) {
     chartHtml += '>';
 
     for (var i = 0; i < chartJSON.length; i++) {
-      chartHtml += '<option value="' + buildIFrameSrc(username, chartJSON[i]) + '" >';
+      chartHtml += '<option value="' + buildIFrameSrc(chartJSON[i]) + '" >';
       chartHtml += chartJSON[i].itemTitle;
       chartHtml += '</option>';
     }
@@ -227,16 +224,16 @@ function buildChartHtml(chartJSON, width, height) {
   }
 
   chartHtml += '<iframe id="1selfIFrame" width="' + width + '%" height="' + height + '" ';
-  chartHtml += 'src="' + buildIFrameSrc(username, chartJSON[0]) + '"';
+  chartHtml += 'src="' + buildIFrameSrc(chartJSON[0]) + '"';
   chartHtml += ' />';
 
   return chartHtml;
 }
 
-function buildIFrameSrc(username, srcJSON) {
+function buildIFrameSrc(srcJSON) {
   var iFrameSrc = '';
 
-  iFrameSrc += 'https://app.1self.co/v1/users/' + username + '/events/';
+  iFrameSrc += 'https://app.1self.co/v1/me/events/';
   iFrameSrc += srcJSON.objString;
   iFrameSrc += '/' + srcJSON.actionString + '/' + srcJSON.aggregation + '/';
   iFrameSrc += srcJSON.period + '/' + srcJSON.chartType + '?bgColor=' + srcJSON.bgColor;
