@@ -3,6 +3,9 @@
   "version": "0.1",
   "description": "Expand links in your favourite social timelines",
   "background": {"page": "background.html"},
+  "icons": {
+    "128":"icon.png"
+    },
   "manifest_version": 2,
   "browser_action": {
     "name": "Timeline Expander",
