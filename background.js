@@ -1,8 +1,9 @@
 
 
-var select_1self = "select-1self";
+var select_1self = "select_1self";
+var frame_1self = '1selfIFrame';
+
 if (window.location.origin === "https://twitter.com") {
-  // alert('yay');
   manipulateTwitter();
 } else if (window.location.origin === "https://news.ycombinator.com") {
   manipulateHN();
@@ -22,52 +23,40 @@ function getAndInsertInstagramUrl(instagramUrl, theTweet, page) {
 }
 
 function manipulateTwitter() {
-
   insertChart();
+  rememberSelect(select_1self, frame_1self);
+}
 
-  var tweets = $(".tweet-text");
-  var page = 'main';
+function rememberSelect(listId, frameId) {
 
-  if (tweets.length === 0) {
-    tweets = $(".ProfileTweet-text");
-    page = 'profile';
-  }
+  $('#' + listId).ready(function() {
+    var self = $('#' + listId);
+    var hostName = window.location.origin;
 
-  // console.log(tweets);
-
-  for (i=0; i<tweets.length; i++) {
-  // for (i=1; i<2; i++) {
-  	// alert($(tweets[0]).text());
-    //
-    var theTweet1 = tweets[i];
-
-    var theTweet = $(theTweet1);
-
-    var matchingChildren = theTweet.children("a.twitter-timeline-link");
-
-    var instagramUrl;
-
-    if (matchingChildren && matchingChildren.length > 0) { 
-      for (j=0; j<matchingChildren.length;j++) {
-        var theChild = matchingChildren[j];
-        if ($(theChild).attr("title") && $(theChild).attr("title").substring(0,20) === "http://instagram.com") {
-          instagramUrl = $(theChild).attr("title");
-
-          // alert('found one: ' + instagramUrl);
-
-          getAndInsertInstagramUrl(instagramUrl, theTweet, page);
-          break;
-        }
+    chrome.storage.local.get(hostName, function(result) {
+      if (chrome.runtime.lastError) {
+        /* error */
+        self.val('Followers');
+        console.log(chrome.runtime.lastError);
+        return;
       }
-    }
-  }
+      self.val(result[hostName]);
+    });
+  });
 
-  $('#'+select_1self).change(function(){
-    document.getElementById('1selfIFrame').src = this.options[this.selectedIndex].value;
+  $('#' + listId).change(function() {
+    var hostName = window.location.origin;
+    document.getElementById(frameId).src = this.options[this.selectedIndex].value;
+    var dataObj = {};
+    dataObj[hostName] = this.options[this.selectedIndex].value;
+    chrome.storage.local.set(dataObj);
   });
 }
 
 function manipulateHN() {
+
+  $('#karma_link').ready(buildJSFunction);
+
   var karmaField = $(".pagetop")[1];
   var kChildren = $(karmaField).children().detach();
   var karmaText = $(karmaField).text();
@@ -77,7 +66,7 @@ function manipulateHN() {
   $(karmaField).text('');
   $(karmaField).append(kChildren[0]);
   $(karmaField).append("<span>&nbsp;(</span>");
-  $(karmaField).append("<a href='#' onclick='" + buildJSFunction() + "'>" + karma + "</a>");
+  $(karmaField).append("<a href='#' id='karma_link'>" + karma + "</a>");
   $(karmaField).append("<span>)&nbsp;|&nbsp;</span>");
   $(karmaField).append(kChildren[1]);
 
@@ -89,14 +78,12 @@ function manipulateHN() {
 }
 
 function buildJSFunction() {
-  var functionString = '';
-
-  functionString += 'var elem = document.getElementById("1selfFrame");';
-  functionString += 'if (elem.getAttribute("style") === "display:none;") { elem.setAttribute("style", "display:block;") }';
-  functionString += 'else { elem.setAttribute("style", "display:none;") }';
-  // functionString += 'document.getElementById("1selfFrame").setAttribute("style", "display:none;")';
-
-  return functionString;
+    // var elem = document.getElementById("1selfFrame");
+    // if (elem.getAttribute("style") === "display:none;") {
+    //   elem.setAttribute("style", "display:block;")
+    // } else {
+    //   elem.setAttribute("style", "display:none;")
+    // }
 }
 
 function insertChart() {
@@ -180,7 +167,7 @@ function buildTwitterChartHtml() {
 
 
   var chartHtml = '';
-  chartHtml += '<div class="module trends"><div class="flex-module">';
+  chartHtml += '<div id="1self_div" class="module trends" style="display:none;"><div class="flex-module">';
   chartHtml += buildChartHtml(chartJSON, "100", "500px");
   chartHtml += '</div></div>';
   return chartHtml;
@@ -243,146 +230,4 @@ function buildIFrameSrc(srcJSON) {
   iFrameSrc += srcJSON.period + '/' + srcJSON.chartType + '?bgColor=' + srcJSON.bgColor;
 
   return iFrameSrc;
-}
-
-function insertInstagram(instagramUrl, theTweet, page) {
-
-  var father = theTweet.parent();
-  var grandfather = father.parent();
-
-  var instagramUrlImage = instagramUrl; // + "media/?size=l";
-
-  // alert(father.html());
-  // alert(theTweet.html());
-
-
-  var embeddedMediaHtml = buildEmbeddedMedia(instagramUrlImage, page);
-  
-  if (page === 'main') {
-    var timeStampEl = father.find("a.tweet-timestamp");
-    var idUrl = timeStampEl.attr('href');
-    var timestamp = timeStampEl.attr('title');
-
-    var expandedContentHtml = buildExpandedContentHtml(timestamp, idUrl);
-    var footerHtml = buildFooterHtml(idUrl);
-
-    theTweet.siblings(".expanded-content").append(expandedContentHtml);
-    theTweet.siblings(".stream-item-footer").prepend(footerHtml);
-  }
-
-  theTweet.after(embeddedMediaHtml);
-
-  var gfClass = grandfather.attr("class");
-
-  if (page === 'main') {
-    gfClass += ' has-cards has-native-media with-media-forward auto-expanded media-forward';
-    grandfather.removeAttr("data-expanded-footer");
-  } else if (page === 'profile') {
-    gfClass += ' has-cards is-actionable';
-  } 
-
-  grandfather.attr("class", gfClass);
-  grandfather.attr("data-has-native-media", "true");
-  grandfather.attr("data-has-cards", "true");
-  grandfather.attr("data-card-type", "photo");
-}
-
-
-function buildEmbeddedMedia(instagramUrlImage, page) {
-	var embeddedMedia = '';
-	
-  if (page === 'main') {
-  	embeddedMedia += '        <div class="cards-media-container js-media-container">';
-    embeddedMedia += '     	<div data-card-url="//twitter.com/ManeeshJuneja/status/560525882922901504/photo/1" ';
-    embeddedMedia += '         		data-card-type="photo" class="cards-base cards-multimedia" data-element-context="platform_photo_card">';
-
-
-    embeddedMedia += '  				<a class="media media-thumbnail twitter-timeline-link media-forward is-preview " ';
-    embeddedMedia += '  					data-url="' + instagramUrlImage + '" ';
-    embeddedMedia += '  					data-resolved-url-large="' + instagramUrlImage + '" ';
-    embeddedMedia += '  					href="//twitter.com/ManeeshJuneja/status/560525882922901504/photo/1">';
-
-    embeddedMedia += '    				<div class=" is-preview">';
-              
-    embeddedMedia += '    					<img src="' + instagramUrlImage + '" width="100%" alt="Embedded image permalink" ';
-    embeddedMedia += '    						style="margin-top: -74px;">';
-    embeddedMedia += '    				</div>';
-
-    embeddedMedia += '  				</a>';
-
-    embeddedMedia += '  				<div class="cards-content">';
-    embeddedMedia += '    				<div class="byline">';
-          
-    embeddedMedia += '    				</div>';
-        
-    embeddedMedia += '  				</div>';
-      
-    embeddedMedia += '			</div>';
-
-    embeddedMedia += '		</div>';
-
-  } else if (page === 'profile') {
-
-    embeddedMedia += '          <div class="js-tweet-details-fixer tweet-details-fixer">';
-    embeddedMedia += '          <div class="TwitterPhoto js-media-containerx">';
-    embeddedMedia += '            <div class="TwitterPhoto-container" data-card-url="//twitter.com/QuantifiedDev/status/502400139454316544/photo/1" data-card-type="photo" data-element-context="platform_photo_card">';
-    embeddedMedia += '              <div class="TwitterPhoto-media">';
-    embeddedMedia += '                <a class="TwitterPhoto-link media-thumbnail twitter-timeline-link" data-url="' + instagramUrlImage + '" data-resolved-url-large="' + instagramUrlImage + '">';
-    embeddedMedia += '                  <img class="TwitterPhoto-mediaSource" src="' + instagramUrlImage + '" alt="Embedded image permalink" style="margin-top: -157.0px" lazyload="1">';
-    embeddedMedia += '                </a>';
-
-    embeddedMedia += '              </div> ';
-    embeddedMedia += '            </div>';
-    embeddedMedia += '          </div>';
-    embeddedMedia += '          <div class="js-machine-translated-tweet-container"></div>';
-    embeddedMedia += '        </div>';
-          
-    embeddedMedia += '        <div class="ProfileTweet-contextualLink u-textUserColor">';
-    embeddedMedia += '          <a class="ContextualLink js-nav js-tooltip" href="/strttn/media" title="View more photos and videos from Martin Strotton">View more photos and videos</a>';
-
-    embeddedMedia += '        </div>';
-  }
-
-	return embeddedMedia;
-}
-
-function buildExpandedContentHtml(timestamp, idUrl) {
-  var html = '';
-
-  html += '<div class="js-tweet-details-fixer tweet-details-fixer js-hidden-from-collapse">';
-
-  html += '      <div class="js-machine-translated-tweet-container"></div>';
-  html += '      <div class="js-tweet-stats-container tweet-stats-container "></div>';
-
-  html += '      <div class="client-and-actions">';
-  html += '        <span class="metadata">';
-  html += '          <span>' + timestamp + '</span>';
-
-  html += '          · <a class="permalink-link js-permalink js-nav" href="' + idUrl + '" tabindex="-1">Details</a>  ';
-
-  html += '        </span>';
-  html += '      </div>';
-
-  html += '</div>';
-
-  return html;
-}
-
-function buildFooterHtml(idUrl) {
-  var html = '';
-
-  html += '<a class="details with-icn js-details" href="' + idUrl + '">';
-  html += '    <span class="Icon Icon--photo"></span>';
-
-  html += '  <b>';
-  html += '    <span class="expand-stream-item js-view-details">';
-  html += '      Expand';
-  html += '    </span>';
-  html += '    <span class="collapse-stream-item  js-hide-details">';
-  html += '      Collapse';
-  html += '    </span>';
-  html += '  </b>';
-  html += '</a>';
-
-  return html;
 }
