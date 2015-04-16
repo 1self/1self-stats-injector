@@ -11,8 +11,7 @@ $(document).ready(function() {
 
 function manipulateTwitter() {
   insertChart();
-  var _default = "https://app.1self.co/v1/me/events/internet,social-network,twitter,social-graph,inbound,follower/sample/max(count)/daily/barchart?bgColor=0099cc";
-  rememberSelect(select_1self, frame_1self, _default);
+  rememberSelect(select_1self, frame_1self);
 }
 
 function loadIframe(iframeName, url) {
@@ -24,20 +23,21 @@ function loadIframe(iframeName, url) {
     return true;
 }
 
-function rememberSelect(listId, frameId, _default) {
+function rememberSelect(listId, frameId) {
 
   $('#' + listId).ready(function() {
     var self = $('#' + listId);
     var hostName = window.location.origin;
 
     chrome.storage.local.get(hostName, function(result) {
-      if (chrome.runtime.lastError) {
+      if (chrome.runtime.lastError || typeof result[hostName] === 'undefined') {
         /* error */
-        self.val(_default);
+        $('#' + listId)[0].selectedIndex = 0;
         return;
+      } else {
+        self.val(result[hostName]);
+        loadIframe(frameId, result[hostName]);
       }
-      self.val(result[hostName]);
-      loadIframe(frameId, result[hostName]);
     });
 
     $('#' + listId).change(function() {
@@ -75,8 +75,7 @@ function manipulateHN() {
   var table = $(tableCell).parent().parent().parent();
   $(table).attr('width', '100%');
 
-  var _default = "https://app.1self.co/v1/me/events/internet,social-network,hackernews/sample/max(points)/daily/barchart?bgColor=ff6600";
-  rememberSelect(select_1self, frame_1self, _default);
+  rememberSelect(select_1self, frame_1self);
 }
 
 function insertChart() {
