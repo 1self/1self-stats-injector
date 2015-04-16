@@ -1,5 +1,3 @@
-
-
 var select_1self = "select_1self";
 var frame_1self = '1selfIFrame';
 
@@ -17,6 +15,15 @@ function manipulateTwitter() {
   rememberSelect(select_1self, frame_1self, _default);
 }
 
+function loadIframe(iframeName, url) {
+    var $iframe = $('#' + iframeName);
+    if ( $iframe.length ) {
+        $iframe.attr('src',url);   
+        return false;
+    }
+    return true;
+}
+
 function rememberSelect(listId, frameId, _default) {
 
   $('#' + listId).ready(function() {
@@ -30,19 +37,20 @@ function rememberSelect(listId, frameId, _default) {
         return;
       }
       self.val(result[hostName]);
+      loadIframe(frameId, result[hostName]);
     });
 
+    $('#' + listId).change(function() {
+      var hostName = window.location.origin;
+      var value = this.options[this.selectedIndex].value;
+
+      console.log(value);
+      loadIframe(frameId, value);
+      var dataObj = {};
+      dataObj[hostName] = value;
+      chrome.storage.local.set(dataObj);
+    });
     $('#1self_div').show();
-
-  });
-
-  $('#' + listId).change(function() {
-    var hostName = window.location.origin;
-    console.log(this.options[this.selectedIndex].value);
-    document.getElementById(frameId).src = this.options[this.selectedIndex].value;
-    var dataObj = {};
-    dataObj[hostName] = this.options[this.selectedIndex].value;
-    chrome.storage.local.set(dataObj);
   });
 }
 
@@ -98,8 +106,6 @@ function buildHNChartHtml() {
     "bgColor": 'ff6600'
   }];
 
-  // http://app.1self.co/v1/users/m/events/ycombinator/browse/sum(times-visited)/daily/barchart?shareToken=6cabe6dc0f6a175d026b17c2e16610b502fce5c7a7f85d3e4d71a3c4e314afd6&bgColor=1b1b1a&from=2015-03-12T00:00:00.000Z&to=2015-03-18T23:59:59.999Z
-
   var chartHtml = '';
   chartHtml += '<td rowspan="92" align="right" valign="top">';
   chartHtml += '<div id="1selfFrame" style="display:block;width:80%;">';
@@ -108,10 +114,6 @@ function buildHNChartHtml() {
   chartHtml += '</td>';
   return chartHtml;
 }
-
-// https://app.1self.co/v1/me/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=ebd98ba6a0ae5ccaf8e659bb9fe2cb9a43266aff2eb9e174f0e61f69b0d84b00&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
-// https://app.1self.co/v1/me/events/internet,social-network,hackernews/karma,reputation,sample/max(points)/daily/barchart?shareToken=5a724759edd37d97a2989ab9fb2b6d92df78f53cb89c06dae96e5b360226c1dd&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
-// https://app.1self.co/v1/me/events/internet,social-network,twitter,social-graph,outbound,following/sample/max(count)/daily/barchart?shareToken=d84a38cf398ef7dc3bbbda3548239e7bf3f24e7814412e074ea1c48dde16d2c9&bgColor=00a2d4&from=2015-03-08T00:00:00.000Z&to=2015-03-14T23:59:59.999Z
 
 function buildTwitterChartHtml() {
   var colour = rgbStringToHex($('.DashboardProfileCard-statValue').css('color'));
