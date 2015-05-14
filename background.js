@@ -2,12 +2,67 @@ var select_1self = "select_1self";
 var frame_1self = '1selfIFrame';
 
 $(document).ready(function() {
-  if (window.location.origin === "https://twitter.com") {
-    manipulateTwitter();
-  } else if (window.location.origin === "https://news.ycombinator.com") {
-    manipulateHN();
-  }
-})
+        checkTwitter();
+        checkHackerNews();
+
+        $('#changeSettingsForm').submit(function(){
+                storeSettings();
+        });
+
+        checkInjectHostsIntoForm();
+});
+
+function checkInjectHostsIntoForm(){
+        getEnabledHosts(function(hosts){
+                hosts.forEach(function(host){
+                        $('#changeSettingsForm :input[value="' + host + '"]').prop("checked", true);
+                });
+        });
+}
+
+function checkTwitter(){
+        var host = "https://twitter.com";
+        if(window.location.origin === host)
+                checkInjectEnabledForHost(host, manipulateTwitter);
+}
+
+function checkHackerNews(){
+        var host = "https://news.ycombinator.com";
+        if(window.location.origin === host)
+                checkInjectEnabledForHost(host, manipulateHN);
+}
+
+function checkInjectEnabledForHost(host, callback){
+        getEnabledHosts(function(enabledHosts){
+                if(enabledHosts.indexOf(host) !== -1){
+                        callback();
+                }
+        });
+}
+
+function getEnabledHosts(callback){
+        chrome.storage.local.get("enabledHosts", function(result){
+                if (chrome.runtime.lastError || typeof result['enabledHosts'] === 'undefined') {
+                        callback([]);
+                }else{
+                        callback(result["enabledHosts"]);
+                }
+        });
+}
+
+function storeSettings(){
+        var hosts = [];
+        $('#changeSettingsForm input:checked').each(function(index){
+                hosts.push($(this).val());
+        });
+
+        $('.message').show();
+        return setEnabledHosts(hosts);
+}
+
+function setEnabledHosts(hosts){
+        chrome.storage.local.set({"enabledHosts": hosts});
+}
 
 function manipulateTwitter() {
   insertChart();

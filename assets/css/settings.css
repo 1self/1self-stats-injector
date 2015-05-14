@@ -1,0 +1,40 @@
+body{
+    height: 300px;
+    width: 300px;
+}
+
+div.container{
+    border: 1px solid black;
+    height: 100%;
+}
+
+div.heading{
+    float: left;
+    background-color: #2D3035;
+    width: 100%;
+    color: #D5AE1C;
+    height: 77px;
+}
+
+img.oneself_icon{
+    float: left;
+    padding-right: 10px;
+}
+
+div.heading_text {
+    float: left;
+    line-height: 77px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+div.content {
+    padding-top: 20px;
+    float: left;
+    padding-left: 20px;
+}
+
+span.message{
+    color: green;
+    display:none;
+}
