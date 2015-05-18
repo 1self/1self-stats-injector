@@ -1,5 +1,7 @@
 var select_1self = "select_1self";
 var frame_1self = '1selfIFrame';
+var default_available_hosts = ["https://twitter.com", "https://news.ycombinator.com"];
+initAfterInstall();
 
 $(document).ready(function() {
         checkTwitter();
@@ -11,6 +13,14 @@ $(document).ready(function() {
 
         checkInjectHostsIntoForm();
 });
+
+function initAfterInstall(){
+        chrome.storage.local.get("enabledHosts", function(result){
+                if (chrome.runtime.lastError || typeof result['enabledHosts'] === 'undefined') {
+                        setEnabledHosts(default_available_hosts);
+                }
+        });
+}
 
 function checkInjectHostsIntoForm(){
         getEnabledHosts(function(hosts){
